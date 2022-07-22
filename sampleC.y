@@ -69,7 +69,7 @@ extern int l_offset, l_max;
  *  typed non-terminal symbols
  */
 %type   <y_sym> optional_parameter_list, parameter_list
-%type   <y_num> optional_argument_list, optional_argument_list
+%type   <y_num> optional_argument_list, argument_list
 %type   <y_lab> if_prefix, loop_prefix
 
 /*
@@ -88,10 +88,10 @@ extern int l_offset, l_max;
 
  program
     : {init();}
-    definitions {end_program();}
+        definitions {end_program();}
 
 definitions
-    : definitions
+    : definition
     | definitions definition    {yyerrok; }
     | error
     | definitions error
@@ -102,22 +102,26 @@ definition
     | declaration
 
 function_definition
-    : Identifier '(' {make_func($1); blk_push(); }
-    optional_parameter_list rp
-    parameter_declarations { 
-        chk_parm($1, parm_default($4));
-        all_parm($4); l_max = 0; $<y_lab>$ = gen_entry($1);
-    }
-    compound_statement {
-        all_func($1);
-        gen_pr(OP_RETURN, "end of function");
-        fix_entry($1, $<y_lab>7);
-    }
+    : Identifier '(' { 
+            make_func($1); blk_push();  
+        }
+        optional_parameter_list rp
+        parameter_declarations { 
+            chk_parm($1, parm_default($4));
+            all_parm($4); 
+            l_max = 0; 
+            $<y_lab>$ = gen_entry($1);
+        }
+        compound_statement {
+            all_func($1);
+            gen_pr(OP_RETURN, "end of function");
+            fix_entry($1, $<y_lab>7);
+        }
 optional_parameter_list
     : /* no formal parameters */ {
-        $$ = (struct symtab *) 0; 
-    }
-    | parameter_list /* $$ = $1 = chain of formal parameters */
+            $$ = (struct symtab *) 0; 
+        }
+    | parameter_list    /* $$ = $1 = chain of formal parameters */
 
 parameter_list
     : Identifier {
@@ -127,12 +131,12 @@ parameter_list
         $$ = link_parm($1, $3); 
         yyerrok;
     }
-    | error {$$ = 0; }
+    | error { $$ = 0; }
     | error parameter_list {$$ = $2; }
     | Identifier error parameter_list {
         $$ = link_parm($1, $3);
     }
-    | error ', ' parameter_list {
+    | error ',' parameter_list {
         $$ = $3; yyerrok;
     }
 
@@ -143,7 +147,7 @@ parameter_declarations
     | parameter_declarations error
 
 parameter_declaration
-    : INT parameter_declarator_list struct
+    : INT parameter_declarator_list sc
 
 parameter_declarator_list
     : Identifier {make_parm($1); }
@@ -160,25 +164,28 @@ parameter_declarator_list
     | parameter_declarator_list ',' error
 
 compound_statement
-    : '{'   {$<y_lab>$ = l_offset; blk_push(); }
+    : '{'   {
+        $<y_lab>$ = l_offset; blk_push();
+    }
     declarations statement rr {
         if (l_offset > l_max) l_max = l_offset;
-        l_offset = $<y_lab2;
+        l_offset = $<y_lab>2;
         blk_pop();
     }
 
-parameter_declarations
+declarations
     : /* null */
     | declarations declaration { yyerrok; }
     | declarations error
 
 declaration
-    : INT declarator_list struct
+    : INT declarator_list sc
 
 declarator_list
     : Identifier { all_var($1); }
     | declarator_list ',' Identifier {
-        all_var($3); yyerrok; }
+        all_var($3); yyerrok; 
+    }
     | error
     | declarator_list error
     | declarator_list error Identifier {
@@ -189,7 +196,7 @@ declarator_list
 statements
     : /* null */
     | statements statement {yyerrok; }
-    | statemnts error
+    | statements error
 
 statement
     : expression sc {
@@ -209,7 +216,8 @@ statement
         $<y_lab>$ = gen_jump(OP_JUMP, new_label(), "past ELSE");
         gen_label($1);
     }
-    statement {gen_label($<y_lab>4); }
+    statement 
+        {gen_label($<y_lab>4); }
     | loop_prefix {
         $<y_lab>$ = gen_jump(OP_JUMPZ, new_label(), "WHILE");
         push_break($<y_lab>$);
@@ -233,7 +241,8 @@ loop_prefix
         $<y_lab>$ = gen_label(new_label());
         push_continue($<y_lab>$);
     }
-    expression rp {$$ = $<y_lab>3; }
+    expression rp 
+        {$$ = $<y_lab>3; }
     | WHILE error {
         $$ = gen_label(new_label());
         push_continue($$);
@@ -242,7 +251,7 @@ loop_prefix
 expression
     : binary
     | expression ',' {gen_pr(OP_POP, "discard"); }
-    binary { yyerrok; }
+        binary { yyerrok; }
     | error ',' binary { yyerrok; }
     | expression error
     | expression ',' error
@@ -255,8 +264,10 @@ binary
     | Constant {gen_li($1); }
     | '(' expression rp
     | '(' error rp
-    | Identifier '(' { chk_func($1); }
-    optional_argument_list rp { gen_call($1, $4); }
+    | Identifier '(' 
+        { chk_func($1); }
+    optional_argument_list rp 
+        { gen_call($1, $4); }
     | PP Identifier {
         chk_var($2); gen(OP_INC, gen_mode($2), OFFSET($2), NAME($2));
     }
@@ -264,19 +275,19 @@ binary
         chk_var($2); gen(OP_DEC, gen_mode($2), OFFSET($2), NAME($2));
     }
     | binary '+' binary { gen_alu(ALU_ADD, "+"); }
-    | binary '-' binary { gen_alu(ALU_ADD, "-"); }
-    | binary '*' binary { gen_alu(ALU_ADD, "*"); }
-    | binary '/' binary { gen_alu(ALU_ADD, "/"); }
-    | binary '%' binary { gen_alu(ALU_ADD, "%"); }
-    | binary '>' binary { gen_alu(ALU_ADD, ">"); }
-    | binary '<' binary { gen_alu(ALU_ADD, "<"); }
-    | binary GE binary { gen_alu(ALU_ADD, ">="); }
-    | binary LE binary { gen_alu(ALU_ADD, "<="); }
-    | binary EQ binary { gen_alu(ALU_ADD, "=="); }
-    | binary NE binary { gen_alu(ALU_ADD, "!="); }
-    | binary '&' binary { gen_alu(ALU_ADD, "&"); }
-    | binary '^' binary { gen_alu(ALU_ADD, "^"); }
-    | binary '|' binary { gen_alu(ALU_ADD, "|"); }
+    | binary '-' binary { gen_alu(ALU_SUB "-"); }
+    | binary '*' binary { gen_alu(ALU_MUL, "*"); }
+    | binary '/' binary { gen_alu(ALU_DIV, "/"); }
+    | binary '%' binary { gen_alu(ALU_MOD, "%"); }
+    | binary '>' binary { gen_alu(ALU_GT, ">"); }
+    | binary '<' binary { gen_alu(ALU_LT, "<"); }
+    | binary GE binary { gen_alu(ALU_GE, ">="); }
+    | binary LE binary { gen_alu(ALU_LE, "<="); }
+    | binary EQ binary { gen_alu(ALU_EQ, "=="); }
+    | binary NE binary { gen_alu(ALU_NE, "!="); }
+    | binary '&' binary { gen_alu(ALU_AND, "&"); }
+    | binary '^' binary { gen_alu(ALU_XOR, "^"); }
+    | binary '|' binary { gen_alu(ALU_OR, "|"); }
     | Identifier '=' binary {
         chk_var($1); gen(OP_STORE, gen_mod($1), OFFSET($1), NAME($1));
     }
@@ -315,10 +326,19 @@ binary
         gen_alu(ALU_MOD, "%");
         gen(OP_STORE, gen_mod($1), OFFSET($1), NAME($1)); 
     }
+
 optional_argument_list
-    : /* no actual arguments */ { $$ = 0; }
-    | argument_list ',' binary { ++$$; yyerrok; }
-    | error {$$ = 0; }
+    : /* no actual arguments */
+        { $$ = 0; }
+    | argument_list     /* $$ = $1 = # of actual arguments */
+
+argument_list
+    : binary  
+        { $$ = 1; }
+    | argument_list ',' binary 
+        { ++$$; yyerrok; }
+    | error 
+        {$$ = 0; }
     | argument_list error
     | argument_list ',' error
 
