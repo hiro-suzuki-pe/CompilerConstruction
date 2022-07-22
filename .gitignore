@@ -1,0 +1,10 @@
+fname.l
+lex.yy.c
+lineNumbering.l
+lnum
+removeUC.l
+wc
+wc.l
+y.tab.c
+前半.txt
+sampleC.tab.c
