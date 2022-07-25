@@ -193,10 +193,12 @@ declarator_list
     }
     | declarator_list ',' error
 
+/*
 statements
-    : /* null */
+    : /* null /
     | statements statement {yyerrok; }
     | statements error
+*/
 
 statement
     : expression sc {

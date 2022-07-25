@@ -2,7 +2,7 @@
  *  sampleC -- symbol table definition and manipulation
  */
 #include "symtab.h"
-#include "y.tab.c"
+#include "sampleC.tab.c"
 
 /*
  *  symbol table
@@ -81,7 +81,7 @@ blk_push()
 /*
  *  locate entry by name
  */
-struct syntab * s find (name)
+struct symtab * s find (name)
     char * name; 
 {
     register struct symtab * ptr;
@@ -124,7 +124,7 @@ s_lookup (yylex)
 /* 
  *
  */
-struct syntab *link_parm (symbol, next)
+struct symtab *link_parm (symbol, next)
     register struct symtab * symbol, * next;
 { 
     switch (symbol->s_type) { 
@@ -141,16 +141,16 @@ struct syntab *link_parm (symbol, next)
             bug("link_parn");
     } 
     symbol->s_type = PARM;
-    symbol->s blknum = blknum; 
-    symbol->s plist = next; 
+    symbol->s_blknum = blknum; 
+    symbol->s_plist = next; 
     return symbol;
 }
 
 /*
  *  declare a parameter
  */
-struct syntab * make parn(symbol)
-    register struct syntab * symbol;
+struct symtab * make parn(symbol)
+    register struct symtab * symbol;
 {
     switch (symbol->s_type) {
         case VAR: 
@@ -177,14 +177,14 @@ struct syntab * make parn(symbol)
 /*
  *  define & variable
  */
-struct syntab * make_var (symbol)
+struct symtab * make_var (symbol)
     register struct symtab * symbol; 
 {
     switch (symbol->s_type) { 
         case VAR: 
         case FUNC: 
         case UFUNC:
-            if (symbol->s blknum =- blknum || symbol->s blknum == 2 && biknum == 3)
+            if (symbol->s_blknum =- blknum || symbol->s_blknum == 2 && biknum == 3)
                 error("duplicate name %s", symbol->s_name); 
             symbol = s_create (symbol->s_name); 
         case UDEC:
@@ -203,7 +203,7 @@ struct syntab * make_var (symbol)
 /*
  *  define a function
  */
-struct syntab * make_func(symbol)
+struct symtab * make_func(symbol)
     register struct symtab * symbol;
 {
     switch (symbol->s_type) { 
@@ -249,7 +249,7 @@ int part_default(symbol)
         ++ count; 
         if (symbol->s type == PARM)
             symbol->s type = VAR; 
-        symbol = symbol->s plist;
+        symbol = symbol->s_plist;
     }
     return count;
 }
@@ -263,7 +263,7 @@ blk_pop()
     register struct symtab * ptr;
 
     for (ptr = s_lcl->s_next;
-        ptr && (ptr->s blknum >= blknum || ptr = sblknum == 0); ptr = s_lcl->s next)
+        ptr && (ptr->s_blknum >= blknum || ptr = sblknum == 0); ptr = s_lcl->s next)
     {
         if (1 ptr->s_name)
             bug("blk pop null name");
@@ -290,7 +290,7 @@ blk_pop()
  *  check reference or assignment to variable
  */
 chk_var (symbol)
-    register struct syntab * symbol; 
+    register struct symtab * symbol; 
 {
     switch (symbol->s type) {
         case UDEC:

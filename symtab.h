@@ -1,14 +1,16 @@
 /*
  *  sampleC -- header file for symbol table
  */
+#ifndef SYMTAB_H
+#define SYMTAB_H
 struct symtab {
     char *s_name;   /* name pointer */
     int s_type;     /* symbol type */
     int s_blknum;   /* static block depth*/
     union {
-        ints_num
+        int s_num;
         struct symtab *s_link;
-    }
+    } s_;
     int  s_offset;  /* symbol definition */
     struct symtab *s_next;  /* next entry */
 };
@@ -38,3 +40,4 @@ struct symtab *make_func();     /* define fuction */
 char *strsave();                /* dynamically save a string */
 char *calloc();                 /* dynamically obtain memory */
 
+#endif

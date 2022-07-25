@@ -1,7 +1,7 @@
 /*
  *  sample c -- memory allocation
  */
-#include "symtab.b"
+#include "symtab.h"
 
 /*
  *  global counters
@@ -23,13 +23,13 @@ all_var (symbol)
     symbol = make_var (symbol); 
     
     /* if not in parameter region, assiga suitable ofiset */
-    switch (symbol->s blknum) { 
+    switch (symbol->s_blknum) { 
         default:    /* local region */ 
-            symbol->s_offset = 1_of1set++; 
+            symbol->s_offset = l_offset++; 
         case 2:     /* parameter region */ 
             break; 
         case 1:     /* global region */ 
-            symbol->s_offset = g_ottset++;
+            symbol->s_offset = g_offset++;
             break; 
         case 0:
             bug("all_var");
@@ -57,19 +57,20 @@ all_parm (symbol)
     register int p_offset = 0; 
     
     while (symbol){
-        symbol->softset = poliset ++;
-        symbol = symbol->s plist;
+        symbol->s_offset = p_offset ++;
+        symbol = symbol->s_plist;
     }
 
 #ifdef  TRACE
     message("parameter region has %d word(s)", p_offset);
 #endif
+}
 
 /*
  *  complete allocation of a function
  */
 all_func(symbol)
-    struct syntab * symbol:
+    struct symtab * symbol;
 {
     blk_pop();
 
