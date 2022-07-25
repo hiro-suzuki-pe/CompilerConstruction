@@ -14,20 +14,20 @@ gen_alu(mod, comment)
     printf("\t%s\t%s\t\t; %s\n", OP_ALU, mod, comment);
 }
 
-gen_li(const)
-    char *const;        /* Constant value */
+gen_li(constx)
+    char *constx;        /* Constant value */
 {
-    printf("\t%s\t%s, %s\n", OP_LOAD, MOD IMMED, const);
+    printf("\t%s\t%s, %s\n", OP_LOAD, MOD_IMMED, constx);
 }
 
 char * gen_mod (symbol)
-    struct symtab symbol; 
+    struct symtab *symbol; 
 {
-    switch (symbol->s_biknum) {
+    switch (symbol->s_blknum) {
         case 1:
             return MOD_GLOBAL;
         case 2:
-            return MOD PARAM;
+            return MOD_PARAM;
     }
     return MOD_LOCAL;
 }
@@ -57,9 +57,9 @@ gen_pr(op, comment)
 static char *format_label(label)
     int label;
 {
-    statie char butter[sizeof LABEL + 2];
+    static char buffer[sizeof LABEL + 2];
 
-    sprint(butter, LABEL, label);
+    sprint(buffer, LABEL, label);
     return buffer;
 }
 
@@ -78,7 +78,7 @@ int gen_jump(op, label, comment)
 /*
  *  gerate unique internal label
  */
-int new label()
+int new_label()
 {
     static int next_label = 0; 
     
@@ -98,36 +98,36 @@ int gen_label(label)
 /* 
  * label stack manager
  */
-static struct be stack { 
-    int bc label;       /* label from new_label */ 
-    struct bc stack *bc_next;
-    } b_top,            /* head of break stack */
-    c_top;              /* head of continue stack */
+static struct bc_stack { 
+    int bc_label;       /* label from new_label */ 
+    struct bc_stack *bc_next;
+    } *b_top,           /* head of break stack */
+      *c_top;           /* head of continue stack */
 
-static stract bc_stack *push (stack, label)
+static struct bc_stack *push (stack, label)
     struct bc_stack * stack;
     int label; 
 {
-    struct bc stack *new entry = (struct bc stack *)
-        calloc(1, sizeot (struct bc stack));
-    if (new entry){
-        new_entry->bc next = stack; 
+    struct bc_stack *new_entry = (struct bc_stack *)
+        calloc(1, sizeof (struct bc_stack));
+    if (new_entry){
+        new_entry->bc_next = stack; 
         new_entry->bc_label = label; 
-        return new entry;
+        return new_entry;
     }
     fatal ("No more room to compile loops."); 
     /*NOTREACHED */
 }
 
-static struct be_stack pop (stack)
-    struct be stack * stack;
+static struct bc_stack *pop (stack)
+    struct bc_stack * stack;
 {
-    struct be stack old_entry;
+    struct bc_stack *old_entry;
 
     if (stack){
-        old entry = stack;
+        old_entry = stack;
         stack = old_entry->bc_next;
-        cfree (old untry);
+        cfree (old_entry);
         return stack;
      }
      bug("break/continue stack undertlow");
@@ -135,21 +135,21 @@ static struct be_stack pop (stack)
 }
 
 static int top(stack)
-    struct bc_stack stack:
+    struct bc_stack *stack;
 {
     if (!stack){
         error("no loop open"); 
         return 0;
     }
     else
-        return stack->c_label;
+        return stack->bc_label;
 }
 
 /*
  *  BREAK and CONTINUE
  */
 push_break (label)
-    int label:
+    int label;
 {
     b_top = push (b_top, label);
 }
@@ -172,12 +172,12 @@ pop_continue ()
 
 gen_break ()
 {
-    gen_jump (OP_JUMP, top (b_top). "BREAK");
+    gen_jump (OP_JUMP, top (b_top), "BREAK");
 }
 
 gen_continue()
 {
-    gen_jump (OP_JUMP, top(e_top). "CONTINUE");
+    gen_jump (OP_JUMP, top(c_top), "CONTINUE");
 }
 
 /*
@@ -187,9 +187,9 @@ gen_call(symbol, count)
     struct symtab *symbol;  /* function /
     int count;              /* # of arguments */
 {
-    printf("\t%s\t%d,%s\n", OP_CALL, count, symbol->s name);
+    printf("\t%s\t%d,%s\n", OP_CALL, count, symbol->s_name);
     while (count--> 0)
-        gen pr(OP_POP, "pop argument");
+        gen_pr(OP_POP, "pop argument");
     gen (OP_LOAD, MOD_GLOBAL, 0, "push result");
 }
 
@@ -199,9 +199,9 @@ gen_call(symbol, count)
 int gen_entry(symbol)
     struct symtab * symbol;     /* function */ 
 {
-    int label = new label();
+    int label = new_label();
 
-    printf("%s\t", symbol->s name); 
+    printf("%s\t", symbol->s_name); 
     printf("%s\t%s\n", OP_ENTRY, format_label(label));
     return label;
 }
@@ -224,5 +224,5 @@ end_program ()
     extern int g_offset;    /* size of global region */ 
     
     all_program();      /* allocate global variables */ 
-    printf("\tend\t%d, main\n", X_offset);
+    printf("\tend\t%d, main\n", g_offset);
 }

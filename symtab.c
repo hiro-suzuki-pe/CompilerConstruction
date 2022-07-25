@@ -92,7 +92,7 @@ struct symtab * s find (name)
             bug("s_find");
         else
             /* return ptr if names match */ 
-            if (strcmp (ptr->s name, name) == 0)
+            if (strcmp (ptr->s_name, name) == 0)
                 return ptr;
     /* search falls, return NULL */ 
     return (struct symtab *) 0;
@@ -156,13 +156,13 @@ struct symtab * make parn(symbol)
         case VAR: 
             if (symbol->s_blknum == 2){
                 error("parameter %s declared twice",
-                    symbol->s name);
+                    symbol->s_name);
                 return symbol;
             }
         case UDEC: 
         case FUNC: 
         case UFUNC:
-            error("%s is not a parameter", Symbol->s name);
+            error("%s is not a parameter", Symbol->s_name);
             symbol = s_create (symbol->s_name); 
         case PARM:
             break; 
@@ -234,7 +234,7 @@ chk_parm (symbol, count)
     if (symbol->s poup == NOT_SET)
         symbol->s poum = count; 
     else if ((int) symbol->s poum != count) 
-        warning("function %s should have %d argument(s)", symbol->s name, symbol->s poum):
+        warning("function %s should have %d argument(s)", symbol->s_name, symbol->s poum):
 }
 
 /*
@@ -278,8 +278,8 @@ blk_pop()
 #endif TRACE
 
         if (ptr->s type == UFUNC)
-            error("undefined function %s", ptr->s name);
-        ctree (ptr->s name); 
+            error("undefined function %s", ptr->s_name);
+        ctree (ptr->s_name); 
         s_lcl->s_next = ptr->s_next; 
         cfree (ptr);
     }
@@ -325,7 +325,7 @@ chk_func(symbol)
             symbol->s poum = NOT SET;
             return; 
         case VAR: 
-            error("variable %s used as function", symbol->s name);
+            error("variable %s used as function", symbol->s_name);
             symbol->s_pnum = NOT_SET; 
         case UFUNC: 
         case FUNC:
