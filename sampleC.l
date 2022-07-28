@@ -6,7 +6,7 @@
 #ifdef DEBUG       /* debugging version - if assert ok */
 
 #include <assert.h>
-#include "sampleC.h"
+
 
 main()
 {
@@ -24,7 +24,8 @@ int yynerrs = 0;
 #define token(x)    x
 
 #else   !DEBUG      /* production version */
-(int
+
+#include "sampleC.tab.h"
 #define token(x)    x
 
 #endif  DEBUG

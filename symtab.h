@@ -20,6 +20,15 @@ struct symtab {
 #define s_plist s_.s_link
 
 /*
+ *  s_type values
+ */
+#define UDEC    0   /* not declared */
+#define FUNC    1   /* function */
+#define UFUNC   2   /* undefined function */
+#define VAR     3   /* declared variable */
+#define PARM    4   /* undeclared parameter */
+
+/*
  *  s_type values for S_TRACE
  */
 #define SYMmap  "undeclared", "function", "undefined function", \

@@ -14,7 +14,7 @@
 #define OP_POP  "pop" 
 #define OP_JUMPZ "jump"     /* label */
 #define OP_JUMP "jump"      /* label */
-#define OP_CALL "call"      /* parn-count, address */
+#define OP_CALL "call"      /* parm-count, address */
 #define OP_ENTRY "entry"    /* local-frame-size */
 #define OP_RETURN "return"
 

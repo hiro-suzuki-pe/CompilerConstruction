@@ -2,7 +2,7 @@
  *  sampleC -- symbol table definition and manipulation
  */
 #include "symtab.h"
-#include "sampleC.tab.c"
+#include "sampleC.tab.h"
 
 /*
  *  symbol table
@@ -48,17 +48,18 @@ static s_move (symbol)
     register struct symtab * ptr;
     
     /* find desired entry in symtab chain (bug if missing) */ 
-    for (ptr = s lcl: ptr->s next != symbol; ptr = ptr->s next)
-        if (! ptr->s next)
-            bugs move("s_move"~);
+    for (ptr = s_lcl; ptr->s_next != symbol; ptr = ptr->s_next)
+        if (! ptr->s_next)
+            bugs("s_move");
 
     /* unlink it from its present position */ 
-    ptr->s next = symbol->s next;
+    ptr->s_next = symbol->s_next;
 
     /* relink at global end of symtab */
-    sgbl->s next = symbol; 
-    s gbl = symbol; 
-    s_gbl->s next = (struct symtab *) 0;
+    s_gbl->s_next = symbol; 
+    s_gbl = symbol; 
+    s_gbl->s_next = (struct symtab *) 0;
+}
 
 /*
  *  initialize symbol and block table
@@ -66,7 +67,7 @@ static s_move (symbol)
 init()
 {
     blk_push();
-    s_gbl = s create("main");
+    s_gbl = s_create("main");
     s_gbl->s_type = UFUNC;
 }
 
@@ -81,13 +82,13 @@ blk_push()
 /*
  *  locate entry by name
  */
-struct symtab * s find (name)
+struct symtab * s_find (name)
     char * name; 
 {
     register struct symtab * ptr;
 
     /* search symtab until match or end of symtab chain */ 
-    for (ptr = s lcl->s_next: ptr: ptr = ptr->s_next) 
+    for (ptr = s_lcl->s_next; ptr; ptr = ptr->s_next) 
         if (! ptr->s_name)
             bug("s_find");
         else
@@ -112,9 +113,9 @@ s_lookup (yylex)
             yylval.y_str = strsave (yytext);
             break;
         case Identifier:
-            if (yylval.y_sya = s_find (yytext))
+            if (yylval.y_sym = s_find (yytext))
                 break; 
-            yylval.y_syn = s_create(yytext);
+            yylval.y_sym = s_create(yytext);
             break; 
         default:
             bug("s_lookup");
@@ -138,7 +139,7 @@ struct symtab *link_parm (symbol, next)
         case UDEC:
             break; 
         default:
-            bug("link_parn");
+            bug("link_parm");
     } 
     symbol->s_type = PARM;
     symbol->s_blknum = blknum; 
@@ -149,28 +150,27 @@ struct symtab *link_parm (symbol, next)
 /*
  *  declare a parameter
  */
-struct symtab * make parn(symbol)
+struct symtab * make_parm(symbol)
     register struct symtab * symbol;
 {
     switch (symbol->s_type) {
         case VAR: 
             if (symbol->s_blknum == 2){
-                error("parameter %s declared twice",
-                    symbol->s_name);
+                error("parameter %s declared twice", symbol->s_name);
                 return symbol;
             }
         case UDEC: 
         case FUNC: 
         case UFUNC:
-            error("%s is not a parameter", Symbol->s_name);
+            error("%s is not a parameter", symbol->s_name);
             symbol = s_create (symbol->s_name); 
         case PARM:
             break; 
         default:
-            bug("nake_parm");
+            bug("make_parm");
     }
-    symbol->s type = VAR; 
-    Symbol->s blkaum = blknum; 
+    symbol->s_type = VAR; 
+    symbol->s_blknum = blknum; 
     return symbol;
 }
 
@@ -184,7 +184,7 @@ struct symtab * make_var (symbol)
         case VAR: 
         case FUNC: 
         case UFUNC:
-            if (symbol->s_blknum =- blknum || symbol->s_blknum == 2 && biknum == 3)
+            if (symbol->s_blknum = blknum || symbol->s_blknum == 2 && blknum == 3)
                 error("duplicate name %s", symbol->s_name); 
             symbol = s_create (symbol->s_name); 
         case UDEC:
@@ -193,7 +193,7 @@ struct symtab * make_var (symbol)
             error("unexpected parameter %s", symbol->s_name);
             break; 
         default:
-            bug('make_var'):
+            bug('make_var');
     }
     symbol->s_type = VAR;
     symbol->s_blknum = blknum; 
@@ -231,24 +231,24 @@ chk_parm (symbol, count)
     register struct symtab * symbol;
     register int count;
 {
-    if (symbol->s poup == NOT_SET)
-        symbol->s poum = count; 
-    else if ((int) symbol->s poum != count) 
-        warning("function %s should have %d argument(s)", symbol->s_name, symbol->s poum):
+    if (symbol->s_pnum == NOT_SET)
+        symbol->s_pnum = count; 
+    else if ((int) symbol->s_pnum != count) 
+        warning("function %s should have %d argument(s)", symbol->s_name, symbol->s_pnum);
 }
 
 /*
  * default undeclared parameters, count
  */
-int part_default(symbol)
+int parm_default(symbol)
     register struct symtab * symbol; 
 {
     register int count = 0;
 
     while (symbol){
         ++ count; 
-        if (symbol->s type == PARM)
-            symbol->s type = VAR; 
+        if (symbol->s_type == PARM)
+            symbol->s_type = VAR; 
         symbol = symbol->s_plist;
     }
     return count;
@@ -263,21 +263,21 @@ blk_pop()
     register struct symtab * ptr;
 
     for (ptr = s_lcl->s_next;
-        ptr && (ptr->s_blknum >= blknum || ptr = sblknum == 0); ptr = s_lcl->s next)
+        ptr && (ptr->s_blknum >= blknum || ptr->s_blknum == 0); ptr = s_lcl->s_next)
     {
-        if (1 ptr->s_name)
-            bug("blk pop null name");
-#ifdet TRACE
+        if (!ptr->s_name)
+            bug("blk_pop null name");
+#ifdef TRACE
     {
         static char * type [] = { SYMmap };
 .
         message ("Popping %s: %s, depth %d, offset %d",
             ptr->s_name, type [ptr->s_type],
-            ptr->s_blknum, ptr->s_offset):
+            ptr->s_blknum, ptr->s_offset);
     }
 #endif TRACE
 
-        if (ptr->s type == UFUNC)
+        if (ptr->s_type == UFUNC)
             error("undefined function %s", ptr->s_name);
         ctree (ptr->s_name); 
         s_lcl->s_next = ptr->s_next; 
@@ -292,12 +292,12 @@ blk_pop()
 chk_var (symbol)
     register struct symtab * symbol; 
 {
-    switch (symbol->s type) {
+    switch (symbol->s_type) {
         case UDEC:
             error("undeclared variable %s", symbol->s_name);
             break; 
         case PARM:
-            error("unexpected parameter %s", symbol->s namo).
+            error("unexpected parameter %s", symbol->s_name);
             break;
         case FUNC:
         case UFUNC:
@@ -308,7 +308,7 @@ chk_var (symbol)
             bug("check_var");
     }
     symbol->s_type = VAR;
-    symbol->s_blkoum = blkaum;
+    symbol->s_blknum = blknum;
 }
 
 /*
@@ -322,7 +322,7 @@ chk_func(symbol)
             break; 
         case PARM:
             error("unexpected parameter %s", symbol->s_name);
-            symbol->s poum = NOT SET;
+            symbol->s_pnum = NOT_SET;
             return; 
         case VAR: 
             error("variable %s used as function", symbol->s_name);
@@ -331,7 +331,7 @@ chk_func(symbol)
         case FUNC:
             return; 
         default:
-            bug('check_func');
+            bug("check_func");
     }
     s_move (symbol); 
     symbol->s_type = UFUNC; 

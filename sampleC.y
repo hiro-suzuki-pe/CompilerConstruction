@@ -232,20 +232,7 @@ statement
     }
 if_prefix
     : IF '(' expression rp {
-        $$ = gen_jump(OP_JUMPZ, new_label(), "IF");
-    }
-    | IF error {
-        $$ = gen_jump(OP_JUMPZ, new_label(), "IF");
-    }
-
-loop_prefix
-    : WHILE '(' {
-        $<y_lab>$ = gen_label(new_label());
-        push_continue($<y_lab>$);
-    }
-    expression rp 
-        {$$ = $<y_lab>3; }
-    | WHILE error {
+        $$ = gen_jump(OP_JUMPZ, new_label(), "IF");yy.t
         $$ = gen_label(new_label());
         push_continue($$);
     }
