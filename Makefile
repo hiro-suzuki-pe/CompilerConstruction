@@ -1,6 +1,8 @@
 
 
+
 gen.o:	gen.c
+	$CC	-c	-w	$
 
 symtab.o:	symtab.c
 
@@ -8,9 +10,9 @@ mem.o:	mem.c
 
 message.o:	message.c
 
-y.tab.o:	sampleC.y
-	bison sampleC.y
-	gcc -c y.tab.c
+sampleC.tab.o:	sampleC.y
+	bison -d sampleC.y
+	gcc -c -w sampleC.tab.c
 
 lex.yy.o:	sampleC.l
 	flex sampleC.l 
