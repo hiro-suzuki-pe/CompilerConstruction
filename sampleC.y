@@ -68,9 +68,9 @@ extern int l_offset, l_max;
 /*
  *  typed non-terminal symbols
  */
-%type   <y_sym> optional_parameter_list, parameter_list
-%type   <y_num> optional_argument_list, argument_list
-%type   <y_lab> if_prefix, loop_prefix
+%type   <y_sym> optional_parameter_list  parameter_list
+%type   <y_num> optional_argument_list  argument_list
+%type   <y_lab> if_prefix  loop_prefix
 
 /*
  *  precedence table
@@ -232,7 +232,18 @@ statement
     }
 if_prefix
     : IF '(' expression rp {
-        $$ = gen_jump(OP_JUMPZ, new_label(), "IF");yy.t
+        $$ = gen_jump(OP_JUMPZ, new_label(), "IF");
+    }
+    | IF error {
+        $$ = gen_jump(OP_JUMPZ, new_label(), "IF");
+    }
+loop_prefix
+    : WHILE '(' {
+        $<y_lab>$ = gen_label(new_label());
+    }
+    expression rp {
+        $$ = $<y_lab>3; }
+    | WHILE error {
         $$ = gen_label(new_label());
         push_continue($$);
     }
