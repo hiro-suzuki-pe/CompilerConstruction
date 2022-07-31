@@ -45,3 +45,10 @@
  *  typed functions, code generator
  */
 char * gen_mod();       /* region modifier */
+
+/*
+#ifdef gen()
+#undef gen
+#endif
+*/
+void gen();

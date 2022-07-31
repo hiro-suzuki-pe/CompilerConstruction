@@ -66,7 +66,7 @@ simulate(pc_limit, global, pc)
         switch(inst->p_op)
         {
         default:
-            print("%d:\thalt\n", inst-prog);
+            printf("%d:\thalt\n", inst-prog);
             return;
 
         /* other instructions */

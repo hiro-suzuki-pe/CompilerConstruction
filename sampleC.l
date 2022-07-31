@@ -14,7 +14,7 @@ main()
 
     assert(sizeof(int) >= sizeof(char *));
     while(p = (char *)yylex())
-    print("%-10.10s is \"%s\"\n", p, yytext);
+    printf("%-10.10s is \"%s\"\n", p, yytext);
 }
 
 s_lookup()  {}
@@ -27,10 +27,11 @@ int yynerrs = 0;
 
 #include "sampleC.tab.h"
 #define token(x)    x
+int yynerrs = 0;
 
 #endif  DEBUG
 
-#define END(v)  (v-1 + sizeof v/sizeof v[0]
+#define END(v)  (v-1 + sizeof v/sizeof v[0])
 static int screen();
 %}
 
@@ -104,6 +105,8 @@ static int screen()
     return token(Identifier);
 }
 
+#ifdef DEBUG
+
 s_lookup(yylex)
 int yylex;          /* Constant or Identifier */
 {
@@ -120,6 +123,7 @@ int yylex;          /* Constant or Identifier */
             yylval.y_sym = s_create(yytext);
             break;
         default:
-            bug("s_lookup")
+            bug("s_lookup");
     }
 }
+#endif

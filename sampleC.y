@@ -12,7 +12,7 @@
 #include "sim.h"        /* code generation mnemonics */
 
 #define OFFSET(x)       (((struct symtab *)x)->s_offset)
-#define NAME(x)         (((struct symtab *)x)->s_name))
+#define NAME(x)         (((struct symtab *)x)->s_name)
 
 extern int l_offset, l_max;
 %}
@@ -269,13 +269,13 @@ binary
     optional_argument_list rp 
         { gen_call($1, $4); }
     | PP Identifier {
-        chk_var($2); gen(OP_INC, gen_mode($2), OFFSET($2), NAME($2));
+        chk_var($2); gen(OP_INC, gen_mod($2), OFFSET($2), NAME($2));
     }
     | MM Identifier {
-        chk_var($2); gen(OP_DEC, gen_mode($2), OFFSET($2), NAME($2));
+        chk_var($2); gen(OP_DEC, gen_mod($2), OFFSET($2), NAME($2));
     }
     | binary '+' binary { gen_alu(ALU_ADD, "+"); }
-    | binary '-' binary { gen_alu(ALU_SUB "-"); }
+    | binary '-' binary { gen_alu(ALU_SUB, "-"); }
     | binary '*' binary { gen_alu(ALU_MUL, "*"); }
     | binary '/' binary { gen_alu(ALU_DIV, "/"); }
     | binary '%' binary { gen_alu(ALU_MOD, "%"); }

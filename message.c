@@ -17,7 +17,7 @@ message VARPARM{
 
                          /*VARARGS1*/
 error VARPARM{
-    extern int yyerrs;
+    extern int yynerrs;
 
     fprintf(yyerfp, "[error %d] ", ++yynerrs);
     message(VARARG);

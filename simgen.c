@@ -1,7 +1,7 @@
 /*
  *  sample.c -- code generator for simulator
  */
-
+#include <stdlib.h>
 #include "sim.h"
 #include "symtab.h"
 

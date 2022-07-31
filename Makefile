@@ -1,25 +1,26 @@
+OBJ	= sampleC.tab.o lex.yy.o simgen.o sim.o symtab.o message.o mem.o
+#TEST_OBJ = AllTests.o cmtTest.o cmtTestRunner.o
+CC	= gcc
+YACC = bison
+LEX	= flex
+INC = 
+TEST_INC = 
+LIBS = # -lfl   -ll
+CFLAGS = -w
 
+sim:	$(OBJ) 
+	gcc -o sim.exe $(OBJ) $(LIBS) 
 
+.c.o:
+	$(CC) -c	$(INC)	$(CFLAGS) $<
 
-gen.o:	gen.c
-	$CC	-c	-w	$
+sampleC.tab.c:	sampleC.y
+	$(YACC) -d $<
 
-symtab.o:	symtab.c
-
-mem.o:	mem.c
-
-message.o:	message.c
-
-sampleC.tab.o:	sampleC.y
-	bison -d sampleC.y
-	gcc -c -w sampleC.tab.c
-
-lex.yy.o:	sampleC.l
-	flex sampleC.l 
-	gcc -c lex.yy.c 
-
-gen:	gen.o mem.o symtab.o message.o  y.tab.o lex.yy.o 
-	gcc 	gen.o mem.o symtab.o message.o  y.tab.o lex.yy.o colib -ll -o gen
+lex.yy.c:	sampleC.l
+	$(LEX) $<
 
 clean:
-	rm gen *.o y.tab.c lex.yy.c
+	del $(OBJ) sampleC.tab.c  sampleC.tab.h lex.yy.c
+
+all: clean sim

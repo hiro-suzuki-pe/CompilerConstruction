@@ -59,7 +59,7 @@ static char *format_label(label)
 {
     static char buffer[sizeof LABEL + 2];
 
-    sprint(buffer, LABEL, label);
+    sprintf(buffer, LABEL, label);
     return buffer;
 }
 
@@ -71,7 +71,7 @@ int gen_jump(op, label, comment)
     int label;          /* target of jump */
     char *comment;      /* instruction comment */
 {
-    print("\t%si\t%s\t\t; %s\n", op, format_label(label), comment);
+    printf("\t%si\t%s\t\t; %s\n", op, format_label(label), comment);
     return label;
 }
 

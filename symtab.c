@@ -1,6 +1,7 @@
 /*
  *  sampleC -- symbol table definition and manipulation
  */
+#include <stdlib.h>
 #include "symtab.h"
 #include "sampleC.tab.h"
 
@@ -50,7 +51,7 @@ static s_move (symbol)
     /* find desired entry in symtab chain (bug if missing) */ 
     for (ptr = s_lcl; ptr->s_next != symbol; ptr = ptr->s_next)
         if (! ptr->s_next)
-            bugs("s_move");
+            bug("s_move");
 
     /* unlink it from its present position */ 
     ptr->s_next = symbol->s_next;
@@ -279,7 +280,7 @@ blk_pop()
 
         if (ptr->s_type == UFUNC)
             error("undefined function %s", ptr->s_name);
-        ctree (ptr->s_name); 
+        cfree (ptr->s_name); 
         s_lcl->s_next = ptr->s_next; 
         cfree (ptr);
     }
