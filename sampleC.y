@@ -15,6 +15,7 @@
 #define NAME(x)         (((struct symtab *)x)->s_name)
 
 extern int l_offset, l_max;
+
 %}
 
 %union {

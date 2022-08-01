@@ -1,8 +1,8 @@
 /*
  *  sampleC -- header file for symbol table
  */
-#ifndef SYMTAB_H
-#define SYMTAB_H
+#include <stdlib.h>
+
 struct symtab {
     char *s_name;   /* name pointer */
     int s_type;     /* symbol type */
@@ -49,4 +49,4 @@ struct symtab *make_func();     /* define fuction */
 char *strsave();                /* dynamically save a string */
 //char *calloc();                 /* dynamically obtain memory */
 
-#endif
+#define cfree(x)    free(x)
